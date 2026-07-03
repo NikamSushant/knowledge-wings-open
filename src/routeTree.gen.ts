@@ -13,6 +13,7 @@ import { Route as ChildrensBooksRouteImport } from './routes/childrens-books'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AmbedkarThoughtsRouteImport } from './routes/ambedkar-thoughts'
+import { Route as AboutAuthorRouteImport } from './routes/about-author'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReadSlugRouteImport } from './routes/read.$slug'
 import { Route as CategoriesSlugRouteImport } from './routes/categories.$slug'
@@ -38,6 +39,11 @@ const AmbedkarThoughtsRoute = AmbedkarThoughtsRouteImport.update({
   path: '/ambedkar-thoughts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutAuthorRoute = AboutAuthorRouteImport.update({
+  id: '/about-author',
+  path: '/about-author',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -61,6 +67,7 @@ const BooksSlugRoute = BooksSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about-author': typeof AboutAuthorRoute
   '/ambedkar-thoughts': typeof AmbedkarThoughtsRoute
   '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRouteWithChildren
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about-author': typeof AboutAuthorRoute
   '/ambedkar-thoughts': typeof AmbedkarThoughtsRoute
   '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRouteWithChildren
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about-author': typeof AboutAuthorRoute
   '/ambedkar-thoughts': typeof AmbedkarThoughtsRoute
   '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRouteWithChildren
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about-author'
     | '/ambedkar-thoughts'
     | '/books'
     | '/categories'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about-author'
     | '/ambedkar-thoughts'
     | '/books'
     | '/categories'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about-author'
     | '/ambedkar-thoughts'
     | '/books'
     | '/categories'
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutAuthorRoute: typeof AboutAuthorRoute
   AmbedkarThoughtsRoute: typeof AmbedkarThoughtsRoute
   BooksRoute: typeof BooksRouteWithChildren
   CategoriesRoute: typeof CategoriesRouteWithChildren
@@ -160,6 +173,13 @@ declare module '@tanstack/react-router' {
       path: '/ambedkar-thoughts'
       fullPath: '/ambedkar-thoughts'
       preLoaderRoute: typeof AmbedkarThoughtsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about-author': {
+      id: '/about-author'
+      path: '/about-author'
+      fullPath: '/about-author'
+      preLoaderRoute: typeof AboutAuthorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -217,6 +237,7 @@ const CategoriesRouteWithChildren = CategoriesRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutAuthorRoute: AboutAuthorRoute,
   AmbedkarThoughtsRoute: AmbedkarThoughtsRoute,
   BooksRoute: BooksRouteWithChildren,
   CategoriesRoute: CategoriesRouteWithChildren,
