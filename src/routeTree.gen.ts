@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PoliciesRouteImport } from './routes/policies'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ChildrensBooksRouteImport } from './routes/childrens-books'
@@ -24,6 +25,11 @@ import { Route as CategoriesSlugRouteImport } from './routes/categories.$slug'
 import { Route as BooksSlugRouteImport } from './routes/books.$slug'
 import { Route as AdminAddBookRouteImport } from './routes/admin.add-book'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PoliciesRoute = PoliciesRouteImport.update({
   id: '/policies',
   path: '/policies',
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/childrens-books': typeof ChildrensBooksRoute
   '/contact': typeof ContactRoute
   '/policies': typeof PoliciesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/add-book': typeof AdminAddBookRoute
   '/books/$slug': typeof BooksSlugRoute
   '/categories/$slug': typeof CategoriesSlugRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/childrens-books': typeof ChildrensBooksRoute
   '/contact': typeof ContactRoute
   '/policies': typeof PoliciesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/add-book': typeof AdminAddBookRoute
   '/books/$slug': typeof BooksSlugRoute
   '/categories/$slug': typeof CategoriesSlugRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/childrens-books': typeof ChildrensBooksRoute
   '/contact': typeof ContactRoute
   '/policies': typeof PoliciesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/add-book': typeof AdminAddBookRoute
   '/books/$slug': typeof BooksSlugRoute
   '/categories/$slug': typeof CategoriesSlugRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/childrens-books'
     | '/contact'
     | '/policies'
+    | '/sitemap.xml'
     | '/admin/add-book'
     | '/books/$slug'
     | '/categories/$slug'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/childrens-books'
     | '/contact'
     | '/policies'
+    | '/sitemap.xml'
     | '/admin/add-book'
     | '/books/$slug'
     | '/categories/$slug'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/childrens-books'
     | '/contact'
     | '/policies'
+    | '/sitemap.xml'
     | '/admin/add-book'
     | '/books/$slug'
     | '/categories/$slug'
@@ -206,11 +218,19 @@ export interface RootRouteChildren {
   ChildrensBooksRoute: typeof ChildrensBooksRoute
   ContactRoute: typeof ContactRoute
   PoliciesRoute: typeof PoliciesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ReadSlugRoute: typeof ReadSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/policies': {
       id: '/policies'
       path: '/policies'
@@ -355,6 +375,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChildrensBooksRoute: ChildrensBooksRoute,
   ContactRoute: ContactRoute,
   PoliciesRoute: PoliciesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ReadSlugRoute: ReadSlugRoute,
 }
 export const routeTree = rootRouteImport
