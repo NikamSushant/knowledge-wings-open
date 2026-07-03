@@ -9,38 +9,291 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PoliciesRouteImport } from './routes/policies'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ChildrensBooksRouteImport } from './routes/childrens-books'
+import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as BooksRouteImport } from './routes/books'
+import { Route as AmbedkarThoughtsRouteImport } from './routes/ambedkar-thoughts'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AboutAuthorRouteImport } from './routes/about-author'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ReadSlugRouteImport } from './routes/read.$slug'
+import { Route as CategoriesSlugRouteImport } from './routes/categories.$slug'
+import { Route as BooksSlugRouteImport } from './routes/books.$slug'
+import { Route as AdminAddBookRouteImport } from './routes/admin.add-book'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliciesRoute = PoliciesRouteImport.update({
+  id: '/policies',
+  path: '/policies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChildrensBooksRoute = ChildrensBooksRouteImport.update({
+  id: '/childrens-books',
+  path: '/childrens-books',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoriesRoute = CategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BooksRoute = BooksRouteImport.update({
+  id: '/books',
+  path: '/books',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AmbedkarThoughtsRoute = AmbedkarThoughtsRouteImport.update({
+  id: '/ambedkar-thoughts',
+  path: '/ambedkar-thoughts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutAuthorRoute = AboutAuthorRouteImport.update({
+  id: '/about-author',
+  path: '/about-author',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReadSlugRoute = ReadSlugRouteImport.update({
+  id: '/read/$slug',
+  path: '/read/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoriesSlugRoute = CategoriesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => CategoriesRoute,
+} as any)
+const BooksSlugRoute = BooksSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BooksRoute,
+} as any)
+const AdminAddBookRoute = AdminAddBookRouteImport.update({
+  id: '/add-book',
+  path: '/add-book',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/about-author': typeof AboutAuthorRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/ambedkar-thoughts': typeof AmbedkarThoughtsRoute
+  '/books': typeof BooksRouteWithChildren
+  '/categories': typeof CategoriesRouteWithChildren
+  '/childrens-books': typeof ChildrensBooksRoute
+  '/contact': typeof ContactRoute
+  '/policies': typeof PoliciesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/add-book': typeof AdminAddBookRoute
+  '/books/$slug': typeof BooksSlugRoute
+  '/categories/$slug': typeof CategoriesSlugRoute
+  '/read/$slug': typeof ReadSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/about-author': typeof AboutAuthorRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/ambedkar-thoughts': typeof AmbedkarThoughtsRoute
+  '/books': typeof BooksRouteWithChildren
+  '/categories': typeof CategoriesRouteWithChildren
+  '/childrens-books': typeof ChildrensBooksRoute
+  '/contact': typeof ContactRoute
+  '/policies': typeof PoliciesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/add-book': typeof AdminAddBookRoute
+  '/books/$slug': typeof BooksSlugRoute
+  '/categories/$slug': typeof CategoriesSlugRoute
+  '/read/$slug': typeof ReadSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/about-author': typeof AboutAuthorRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/ambedkar-thoughts': typeof AmbedkarThoughtsRoute
+  '/books': typeof BooksRouteWithChildren
+  '/categories': typeof CategoriesRouteWithChildren
+  '/childrens-books': typeof ChildrensBooksRoute
+  '/contact': typeof ContactRoute
+  '/policies': typeof PoliciesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/add-book': typeof AdminAddBookRoute
+  '/books/$slug': typeof BooksSlugRoute
+  '/categories/$slug': typeof CategoriesSlugRoute
+  '/read/$slug': typeof ReadSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/about-author'
+    | '/admin'
+    | '/ambedkar-thoughts'
+    | '/books'
+    | '/categories'
+    | '/childrens-books'
+    | '/contact'
+    | '/policies'
+    | '/sitemap.xml'
+    | '/admin/add-book'
+    | '/books/$slug'
+    | '/categories/$slug'
+    | '/read/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/about-author'
+    | '/admin'
+    | '/ambedkar-thoughts'
+    | '/books'
+    | '/categories'
+    | '/childrens-books'
+    | '/contact'
+    | '/policies'
+    | '/sitemap.xml'
+    | '/admin/add-book'
+    | '/books/$slug'
+    | '/categories/$slug'
+    | '/read/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/about-author'
+    | '/admin'
+    | '/ambedkar-thoughts'
+    | '/books'
+    | '/categories'
+    | '/childrens-books'
+    | '/contact'
+    | '/policies'
+    | '/sitemap.xml'
+    | '/admin/add-book'
+    | '/books/$slug'
+    | '/categories/$slug'
+    | '/read/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  AboutAuthorRoute: typeof AboutAuthorRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  AmbedkarThoughtsRoute: typeof AmbedkarThoughtsRoute
+  BooksRoute: typeof BooksRouteWithChildren
+  CategoriesRoute: typeof CategoriesRouteWithChildren
+  ChildrensBooksRoute: typeof ChildrensBooksRoute
+  ContactRoute: typeof ContactRoute
+  PoliciesRoute: typeof PoliciesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ReadSlugRoute: typeof ReadSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/policies': {
+      id: '/policies'
+      path: '/policies'
+      fullPath: '/policies'
+      preLoaderRoute: typeof PoliciesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/childrens-books': {
+      id: '/childrens-books'
+      path: '/childrens-books'
+      fullPath: '/childrens-books'
+      preLoaderRoute: typeof ChildrensBooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/categories': {
+      id: '/categories'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/books': {
+      id: '/books'
+      path: '/books'
+      fullPath: '/books'
+      preLoaderRoute: typeof BooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ambedkar-thoughts': {
+      id: '/ambedkar-thoughts'
+      path: '/ambedkar-thoughts'
+      fullPath: '/ambedkar-thoughts'
+      preLoaderRoute: typeof AmbedkarThoughtsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about-author': {
+      id: '/about-author'
+      path: '/about-author'
+      fullPath: '/about-author'
+      preLoaderRoute: typeof AboutAuthorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +301,82 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/read/$slug': {
+      id: '/read/$slug'
+      path: '/read/$slug'
+      fullPath: '/read/$slug'
+      preLoaderRoute: typeof ReadSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/categories/$slug': {
+      id: '/categories/$slug'
+      path: '/$slug'
+      fullPath: '/categories/$slug'
+      preLoaderRoute: typeof CategoriesSlugRouteImport
+      parentRoute: typeof CategoriesRoute
+    }
+    '/books/$slug': {
+      id: '/books/$slug'
+      path: '/$slug'
+      fullPath: '/books/$slug'
+      preLoaderRoute: typeof BooksSlugRouteImport
+      parentRoute: typeof BooksRoute
+    }
+    '/admin/add-book': {
+      id: '/admin/add-book'
+      path: '/add-book'
+      fullPath: '/admin/add-book'
+      preLoaderRoute: typeof AdminAddBookRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminAddBookRoute: typeof AdminAddBookRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAddBookRoute: AdminAddBookRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface BooksRouteChildren {
+  BooksSlugRoute: typeof BooksSlugRoute
+}
+
+const BooksRouteChildren: BooksRouteChildren = {
+  BooksSlugRoute: BooksSlugRoute,
+}
+
+const BooksRouteWithChildren = BooksRoute._addFileChildren(BooksRouteChildren)
+
+interface CategoriesRouteChildren {
+  CategoriesSlugRoute: typeof CategoriesSlugRoute
+}
+
+const CategoriesRouteChildren: CategoriesRouteChildren = {
+  CategoriesSlugRoute: CategoriesSlugRoute,
+}
+
+const CategoriesRouteWithChildren = CategoriesRoute._addFileChildren(
+  CategoriesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AboutAuthorRoute: AboutAuthorRoute,
+  AdminRoute: AdminRouteWithChildren,
+  AmbedkarThoughtsRoute: AmbedkarThoughtsRoute,
+  BooksRoute: BooksRouteWithChildren,
+  CategoriesRoute: CategoriesRouteWithChildren,
+  ChildrensBooksRoute: ChildrensBooksRoute,
+  ContactRoute: ContactRoute,
+  PoliciesRoute: PoliciesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ReadSlugRoute: ReadSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
