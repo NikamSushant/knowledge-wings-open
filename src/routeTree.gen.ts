@@ -13,6 +13,7 @@ import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReadSlugRouteImport } from './routes/read.$slug'
+import { Route as CategoriesSlugRouteImport } from './routes/categories.$slug'
 import { Route as BooksSlugRouteImport } from './routes/books.$slug'
 
 const CategoriesRoute = CategoriesRouteImport.update({
@@ -35,6 +36,11 @@ const ReadSlugRoute = ReadSlugRouteImport.update({
   path: '/read/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CategoriesSlugRoute = CategoriesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => CategoriesRoute,
+} as any)
 const BooksSlugRoute = BooksSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -44,43 +50,59 @@ const BooksSlugRoute = BooksSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/books': typeof BooksRouteWithChildren
-  '/categories': typeof CategoriesRoute
+  '/categories': typeof CategoriesRouteWithChildren
   '/books/$slug': typeof BooksSlugRoute
+  '/categories/$slug': typeof CategoriesSlugRoute
   '/read/$slug': typeof ReadSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/books': typeof BooksRouteWithChildren
-  '/categories': typeof CategoriesRoute
+  '/categories': typeof CategoriesRouteWithChildren
   '/books/$slug': typeof BooksSlugRoute
+  '/categories/$slug': typeof CategoriesSlugRoute
   '/read/$slug': typeof ReadSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/books': typeof BooksRouteWithChildren
-  '/categories': typeof CategoriesRoute
+  '/categories': typeof CategoriesRouteWithChildren
   '/books/$slug': typeof BooksSlugRoute
+  '/categories/$slug': typeof CategoriesSlugRoute
   '/read/$slug': typeof ReadSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/books' | '/categories' | '/books/$slug' | '/read/$slug'
+  fullPaths:
+    | '/'
+    | '/books'
+    | '/categories'
+    | '/books/$slug'
+    | '/categories/$slug'
+    | '/read/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/books' | '/categories' | '/books/$slug' | '/read/$slug'
+  to:
+    | '/'
+    | '/books'
+    | '/categories'
+    | '/books/$slug'
+    | '/categories/$slug'
+    | '/read/$slug'
   id:
     | '__root__'
     | '/'
     | '/books'
     | '/categories'
     | '/books/$slug'
+    | '/categories/$slug'
     | '/read/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BooksRoute: typeof BooksRouteWithChildren
-  CategoriesRoute: typeof CategoriesRoute
+  CategoriesRoute: typeof CategoriesRouteWithChildren
   ReadSlugRoute: typeof ReadSlugRoute
 }
 
@@ -114,6 +136,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReadSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/categories/$slug': {
+      id: '/categories/$slug'
+      path: '/$slug'
+      fullPath: '/categories/$slug'
+      preLoaderRoute: typeof CategoriesSlugRouteImport
+      parentRoute: typeof CategoriesRoute
+    }
     '/books/$slug': {
       id: '/books/$slug'
       path: '/$slug'
@@ -134,10 +163,22 @@ const BooksRouteChildren: BooksRouteChildren = {
 
 const BooksRouteWithChildren = BooksRoute._addFileChildren(BooksRouteChildren)
 
+interface CategoriesRouteChildren {
+  CategoriesSlugRoute: typeof CategoriesSlugRoute
+}
+
+const CategoriesRouteChildren: CategoriesRouteChildren = {
+  CategoriesSlugRoute: CategoriesSlugRoute,
+}
+
+const CategoriesRouteWithChildren = CategoriesRoute._addFileChildren(
+  CategoriesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BooksRoute: BooksRouteWithChildren,
-  CategoriesRoute: CategoriesRoute,
+  CategoriesRoute: CategoriesRouteWithChildren,
   ReadSlugRoute: ReadSlugRoute,
 }
 export const routeTree = rootRouteImport
