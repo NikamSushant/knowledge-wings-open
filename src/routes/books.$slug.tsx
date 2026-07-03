@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowRight, Share2, BookOpen, FileText } from "lucide-react";
 import { BookCover } from "@/components/book-card";
-import { getBookBySlug, books, COPYRIGHT_NOTE } from "@/lib/books-data";
+import { getBookBySlug, books, COPYRIGHT_NOTE, type Book } from "@/lib/books-data";
 
 export const Route = createFileRoute("/books/$slug")({
   loader: ({ params }) => {
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/books/$slug")({
 });
 
 function BookDetail() {
-  const { book } = Route.useLoaderData();
+  const { book } = Route.useLoaderData() as { book: Book };
   const related = books.filter((b) => b.slug !== book.slug && b.categorySlug === book.categorySlug).slice(0, 3);
 
   return (
