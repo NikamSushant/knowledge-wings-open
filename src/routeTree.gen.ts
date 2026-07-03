@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ChildrensBooksRouteImport } from './routes/childrens-books'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as IndexRouteImport } from './routes/index'
@@ -16,6 +17,11 @@ import { Route as ReadSlugRouteImport } from './routes/read.$slug'
 import { Route as CategoriesSlugRouteImport } from './routes/categories.$slug'
 import { Route as BooksSlugRouteImport } from './routes/books.$slug'
 
+const ChildrensBooksRoute = ChildrensBooksRouteImport.update({
+  id: '/childrens-books',
+  path: '/childrens-books',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoriesRoute = CategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRouteWithChildren
+  '/childrens-books': typeof ChildrensBooksRoute
   '/books/$slug': typeof BooksSlugRoute
   '/categories/$slug': typeof CategoriesSlugRoute
   '/read/$slug': typeof ReadSlugRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRouteWithChildren
+  '/childrens-books': typeof ChildrensBooksRoute
   '/books/$slug': typeof BooksSlugRoute
   '/categories/$slug': typeof CategoriesSlugRoute
   '/read/$slug': typeof ReadSlugRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRouteWithChildren
+  '/childrens-books': typeof ChildrensBooksRoute
   '/books/$slug': typeof BooksSlugRoute
   '/categories/$slug': typeof CategoriesSlugRoute
   '/read/$slug': typeof ReadSlugRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/books'
     | '/categories'
+    | '/childrens-books'
     | '/books/$slug'
     | '/categories/$slug'
     | '/read/$slug'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/books'
     | '/categories'
+    | '/childrens-books'
     | '/books/$slug'
     | '/categories/$slug'
     | '/read/$slug'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/books'
     | '/categories'
+    | '/childrens-books'
     | '/books/$slug'
     | '/categories/$slug'
     | '/read/$slug'
@@ -103,11 +115,19 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BooksRoute: typeof BooksRouteWithChildren
   CategoriesRoute: typeof CategoriesRouteWithChildren
+  ChildrensBooksRoute: typeof ChildrensBooksRoute
   ReadSlugRoute: typeof ReadSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/childrens-books': {
+      id: '/childrens-books'
+      path: '/childrens-books'
+      fullPath: '/childrens-books'
+      preLoaderRoute: typeof ChildrensBooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/categories': {
       id: '/categories'
       path: '/categories'
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BooksRoute: BooksRouteWithChildren,
   CategoriesRoute: CategoriesRouteWithChildren,
+  ChildrensBooksRoute: ChildrensBooksRoute,
   ReadSlugRoute: ReadSlugRoute,
 }
 export const routeTree = rootRouteImport
