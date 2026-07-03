@@ -50,8 +50,7 @@ function NavItem({
 }) {
   return (
     <Link
-      // @ts-expect-error dynamic string acceptable for these known routes
-      to={to}
+      to={to as "/admin"}
       activeProps={{ className: "bg-primary text-primary-foreground" }}
       inactiveProps={{ className: "text-foreground/80 hover:bg-secondary" }}
       activeOptions={{ exact }}
