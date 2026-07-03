@@ -86,7 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Free online reading platform featuring original books by Sushant Nikam, inspired by the life, thoughts, and mission of Dr. B. R. Ambedkar Ji.",
       },
       { name: "author", content: "Sushant Nikam" },
-      { property: "og:title", content: "Jai Bhim Knowledge Portal" },
+      { property: "og:title", content: "Jai Bhim Knowledge Portal — Free Books Inspired by Babasaheb" },
       {
         property: "og:description",
         content:
@@ -94,6 +94,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Jai Bhim Knowledge Portal — Free Books Inspired by Babasaheb" },
+      { name: "description", content: "A free online e-book reading platform offering books inspired by Dr. B. R. Ambedkar's vision." },
+      { property: "og:description", content: "A free online e-book reading platform offering books inspired by Dr. B. R. Ambedkar's vision." },
+      { name: "twitter:description", content: "A free online e-book reading platform offering books inspired by Dr. B. R. Ambedkar's vision." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/03124896-be5e-4ae1-b21b-879159d5d417/id-preview-2bf226f5--f3f64108-8051-4eaf-ba5b-d36173bbe977.lovable.app-1783091443395.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/03124896-be5e-4ae1-b21b-879159d5d417/id-preview-2bf226f5--f3f64108-8051-4eaf-ba5b-d36173bbe977.lovable.app-1783091443395.png" },
     ],
     links: [
       {
