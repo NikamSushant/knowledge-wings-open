@@ -123,7 +123,6 @@ function Home() {
               <Link
                 key={lang}
                 to="/books"
-                search={{ lang }}
                 className="group rounded-lg border border-[color:var(--color-gold)]/50 bg-[color:var(--color-gold)]/10 p-4 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-primary/40"
               >
                 <div className="flex items-center justify-between">
