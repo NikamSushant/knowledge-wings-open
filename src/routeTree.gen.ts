@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReadSlugRouteImport } from './routes/read.$slug'
 import { Route as BooksSlugRouteImport } from './routes/books.$slug'
 
+const CategoriesRoute = CategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BooksRoute = BooksRouteImport.update({
   id: '/books',
   path: '/books',
@@ -38,12 +44,14 @@ const BooksSlugRoute = BooksSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/books': typeof BooksRouteWithChildren
+  '/categories': typeof CategoriesRoute
   '/books/$slug': typeof BooksSlugRoute
   '/read/$slug': typeof ReadSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/books': typeof BooksRouteWithChildren
+  '/categories': typeof CategoriesRoute
   '/books/$slug': typeof BooksSlugRoute
   '/read/$slug': typeof ReadSlugRoute
 }
@@ -51,25 +59,40 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/books': typeof BooksRouteWithChildren
+  '/categories': typeof CategoriesRoute
   '/books/$slug': typeof BooksSlugRoute
   '/read/$slug': typeof ReadSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/books' | '/books/$slug' | '/read/$slug'
+  fullPaths: '/' | '/books' | '/categories' | '/books/$slug' | '/read/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/books' | '/books/$slug' | '/read/$slug'
-  id: '__root__' | '/' | '/books' | '/books/$slug' | '/read/$slug'
+  to: '/' | '/books' | '/categories' | '/books/$slug' | '/read/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/books'
+    | '/categories'
+    | '/books/$slug'
+    | '/read/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BooksRoute: typeof BooksRouteWithChildren
+  CategoriesRoute: typeof CategoriesRoute
   ReadSlugRoute: typeof ReadSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/categories': {
+      id: '/categories'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/books': {
       id: '/books'
       path: '/books'
@@ -114,6 +137,7 @@ const BooksRouteWithChildren = BooksRoute._addFileChildren(BooksRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BooksRoute: BooksRouteWithChildren,
+  CategoriesRoute: CategoriesRoute,
   ReadSlugRoute: ReadSlugRoute,
 }
 export const routeTree = rootRouteImport
