@@ -1,0 +1,89 @@
+import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { Menu, X } from "lucide-react";
+import { Logo } from "./logo";
+
+const nav = [
+  { to: "/", label: "Home" },
+  { to: "/books", label: "My Books" },
+  { to: "/categories", label: "Categories" },
+  { to: "/childrens-books", label: "Children’s Books" },
+  { to: "/ambedkar-thoughts", label: "Ambedkar Thoughts" },
+  { to: "/about-author", label: "About Author" },
+  { to: "/contact", label: "Contact" },
+] as const;
+
+export function SiteHeader() {
+  const [open, setOpen] = useState(false);
+  return (
+    <header className="sticky top-0 z-40 border-b border-border bg-cream/85 backdrop-blur supports-[backdrop-filter]:bg-cream/70">
+      <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 sm:px-6 lg:grid-cols-[auto_1fr_auto]">
+        <Link to="/" className="min-w-0" aria-label="Jai Bhim Knowledge Portal home">
+          <Logo />
+        </Link>
+        <nav className="hidden lg:flex lg:justify-center">
+          <ul className="flex items-center gap-1">
+            {nav.map((n) => (
+              <li key={n.to}>
+                <Link
+                  to={n.to}
+                  activeProps={{ className: "text-primary bg-secondary" }}
+                  inactiveProps={{ className: "text-foreground/75 hover:text-primary hover:bg-secondary/60" }}
+                  activeOptions={{ exact: n.to === "/" }}
+                  className="rounded-md px-3 py-2 text-sm font-semibold transition-colors"
+                >
+                  {n.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="flex items-center gap-2 justify-self-end">
+          <Link
+            to="/books"
+            className="hidden sm:inline-flex btn-cta items-center rounded-md px-4 py-2 text-sm font-bold"
+          >
+            Start Reading Free
+          </Link>
+          <button
+            type="button"
+            className="grid h-10 w-10 place-items-center rounded-md text-foreground lg:hidden"
+            aria-label="Toggle menu"
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+      </div>
+      {open && (
+        <nav className="border-t border-border bg-cream lg:hidden">
+          <ul className="mx-auto flex max-w-7xl flex-col px-4 py-2 sm:px-6">
+            {nav.map((n) => (
+              <li key={n.to}>
+                <Link
+                  to={n.to}
+                  onClick={() => setOpen(false)}
+                  activeProps={{ className: "text-primary" }}
+                  inactiveProps={{ className: "text-foreground/80" }}
+                  activeOptions={{ exact: n.to === "/" }}
+                  className="block rounded-md px-2 py-3 text-base font-semibold"
+                >
+                  {n.label}
+                </Link>
+              </li>
+            ))}
+            <li className="py-2">
+              <Link
+                to="/books"
+                onClick={() => setOpen(false)}
+                className="btn-cta inline-flex w-full items-center justify-center rounded-md px-4 py-3 text-sm font-bold"
+              >
+                Start Reading Free
+              </Link>
+            </li>
+          </ul>
+        </nav>
+      )}
+    </header>
+  );
+}
