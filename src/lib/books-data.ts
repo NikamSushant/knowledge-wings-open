@@ -3,21 +3,24 @@ export type Book = {
   title: string;
   subtitle?: string;
   author: string;
-  language: "English" | "Hindi" | "Marathi";
+  language: string;
   category: string;
   categorySlug: string;
   pages: number;
   year: number;
   description: string;
   authorNote: string;
-  coverGradient: string;
+  coverGradient?: string;
+  coverUrl?: string | null;
+  hasPdf?: boolean;
+  allowPdfDownload?: boolean;
   featured?: boolean;
   isChildren?: boolean;
-  addedAt: string;
+  addedAt?: string;
   chapters: {
     id: string;
     title: string;
-    content: string; // simple HTML
+    content: string;
   }[];
 };
 
