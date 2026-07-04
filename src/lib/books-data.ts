@@ -236,7 +236,7 @@ export function getBooksByCategory(slug: string) {
 export const featuredBooks = books.filter((b) => b.featured);
 
 export const latestBooks = [...books]
-  .sort((a, b) => (a.addedAt < b.addedAt ? 1 : -1))
+  .sort((a, b) => ((a.addedAt ?? "") < (b.addedAt ?? "") ? 1 : -1))
   .slice(0, 6);
 
 export const COPYRIGHT_NOTE =
