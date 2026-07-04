@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { Logo } from "./logo";
+import { supabase } from "@/integrations/supabase/client";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -15,6 +16,14 @@ const nav = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-cream/85 backdrop-blur supports-[backdrop-filter]:bg-cream/70">
       <div className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 sm:px-6 lg:grid-cols-[auto_1fr_auto]">
@@ -39,6 +48,13 @@ export function SiteHeader() {
           </ul>
         </nav>
         <div className="flex items-center gap-2 justify-self-end">
+          <Link
+            to={signedIn ? "/admin" : "/auth"}
+            className="hidden sm:inline-flex items-center gap-1 rounded-md border border-input px-3 py-2 text-xs font-semibold text-foreground/80 hover:text-primary hover:border-primary"
+            aria-label={signedIn ? "Admin dashboard" : "Sign in"}
+          >
+            <User className="h-3.5 w-3.5" /> {signedIn ? "Admin" : "Sign in"}
+          </Link>
           <Link
             to="/books"
             className="hidden sm:inline-flex btn-cta items-center rounded-md px-4 py-2 text-sm font-bold"
