@@ -15,6 +15,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ChildrensBooksRouteImport } from './routes/childrens-books'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as BooksRouteImport } from './routes/books'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AmbedkarThoughtsRouteImport } from './routes/ambedkar-thoughts'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutAuthorRouteImport } from './routes/about-author'
@@ -53,6 +54,11 @@ const CategoriesRoute = CategoriesRouteImport.update({
 const BooksRoute = BooksRouteImport.update({
   id: '/books',
   path: '/books',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AmbedkarThoughtsRoute = AmbedkarThoughtsRouteImport.update({
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/about-author': typeof AboutAuthorRoute
   '/admin': typeof AdminRouteWithChildren
   '/ambedkar-thoughts': typeof AmbedkarThoughtsRoute
+  '/auth': typeof AuthRoute
   '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRouteWithChildren
   '/childrens-books': typeof ChildrensBooksRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/about-author': typeof AboutAuthorRoute
   '/admin': typeof AdminRouteWithChildren
   '/ambedkar-thoughts': typeof AmbedkarThoughtsRoute
+  '/auth': typeof AuthRoute
   '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRouteWithChildren
   '/childrens-books': typeof ChildrensBooksRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/about-author': typeof AboutAuthorRoute
   '/admin': typeof AdminRouteWithChildren
   '/ambedkar-thoughts': typeof AmbedkarThoughtsRoute
+  '/auth': typeof AuthRoute
   '/books': typeof BooksRouteWithChildren
   '/categories': typeof CategoriesRouteWithChildren
   '/childrens-books': typeof ChildrensBooksRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/about-author'
     | '/admin'
     | '/ambedkar-thoughts'
+    | '/auth'
     | '/books'
     | '/categories'
     | '/childrens-books'
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/about-author'
     | '/admin'
     | '/ambedkar-thoughts'
+    | '/auth'
     | '/books'
     | '/categories'
     | '/childrens-books'
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/about-author'
     | '/admin'
     | '/ambedkar-thoughts'
+    | '/auth'
     | '/books'
     | '/categories'
     | '/childrens-books'
@@ -213,6 +225,7 @@ export interface RootRouteChildren {
   AboutAuthorRoute: typeof AboutAuthorRoute
   AdminRoute: typeof AdminRouteWithChildren
   AmbedkarThoughtsRoute: typeof AmbedkarThoughtsRoute
+  AuthRoute: typeof AuthRoute
   BooksRoute: typeof BooksRouteWithChildren
   CategoriesRoute: typeof CategoriesRouteWithChildren
   ChildrensBooksRoute: typeof ChildrensBooksRoute
@@ -264,6 +277,13 @@ declare module '@tanstack/react-router' {
       path: '/books'
       fullPath: '/books'
       preLoaderRoute: typeof BooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ambedkar-thoughts': {
@@ -370,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutAuthorRoute: AboutAuthorRoute,
   AdminRoute: AdminRouteWithChildren,
   AmbedkarThoughtsRoute: AmbedkarThoughtsRoute,
+  AuthRoute: AuthRoute,
   BooksRoute: BooksRouteWithChildren,
   CategoriesRoute: CategoriesRouteWithChildren,
   ChildrensBooksRoute: ChildrensBooksRoute,
