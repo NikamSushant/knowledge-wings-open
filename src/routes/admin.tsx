@@ -1,4 +1,5 @@
-import { createFileRoute, Link, Outlet, useMatchRoute, useNavigate, useServerFn } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useMatchRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { BookOpen, LayoutDashboard, Loader2, Plus, Trash2, FileDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -129,7 +130,7 @@ function Dashboard() {
 
   const { data: books = [], isLoading } = useQuery({
     queryKey: ["admin-books"],
-    queryFn: () => list(),
+    queryFn: async () => (await list()) as Awaited<ReturnType<typeof listAllBooks>>,
   });
   const deleteMut = useMutation({
     mutationFn: (id: string) => del({ data: { id } }),
