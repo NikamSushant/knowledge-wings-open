@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Book } from "@/lib/books-data";
 
+
 // Maps a Supabase `books` row into the same shape the rest of the site
 // (BookCard, book detail page, reader page) already expects from the
 // mock data file — so those components don't need to change.
