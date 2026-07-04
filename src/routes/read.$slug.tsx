@@ -14,9 +14,29 @@ import {
   X,
 } from "lucide-react";
 import { getBookBySlug, COPYRIGHT_NOTE, type Book } from "@/lib/books-data";
+import { getPublishedBookBySlug } from "@/lib/books.functions";
 
 export const Route = createFileRoute("/read/$slug")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
+    const dbBook = await getPublishedBookBySlug({ data: { slug: params.slug } });
+    if (dbBook) {
+      const book: Book = {
+        slug: dbBook.slug,
+        title: dbBook.title,
+        subtitle: dbBook.subtitle ?? undefined,
+        author: dbBook.author,
+        language: dbBook.language,
+        category: dbBook.category,
+        categorySlug: dbBook.categorySlug,
+        pages: dbBook.pages,
+        year: dbBook.year,
+        description: dbBook.description,
+        authorNote: dbBook.authorNote,
+        coverUrl: dbBook.coverUrl,
+        chapters: dbBook.chapters.length ? dbBook.chapters : [{ id: "intro", title: "About this book", content: `<p>${dbBook.description}</p>` }],
+      };
+      return { book };
+    }
     const book = getBookBySlug(params.slug);
     if (!book) throw notFound();
     return { book };
