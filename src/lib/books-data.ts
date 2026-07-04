@@ -3,21 +3,24 @@ export type Book = {
   title: string;
   subtitle?: string;
   author: string;
-  language: "English" | "Hindi" | "Marathi";
+  language: string;
   category: string;
   categorySlug: string;
   pages: number;
   year: number;
   description: string;
   authorNote: string;
-  coverGradient: string;
+  coverGradient?: string;
+  coverUrl?: string | null;
+  hasPdf?: boolean;
+  allowPdfDownload?: boolean;
   featured?: boolean;
   isChildren?: boolean;
-  addedAt: string;
+  addedAt?: string;
   chapters: {
     id: string;
     title: string;
-    content: string; // simple HTML
+    content: string;
   }[];
 };
 
@@ -233,7 +236,7 @@ export function getBooksByCategory(slug: string) {
 export const featuredBooks = books.filter((b) => b.featured);
 
 export const latestBooks = [...books]
-  .sort((a, b) => (a.addedAt < b.addedAt ? 1 : -1))
+  .sort((a, b) => ((a.addedAt ?? "") < (b.addedAt ?? "") ? 1 : -1))
   .slice(0, 6);
 
 export const COPYRIGHT_NOTE =
