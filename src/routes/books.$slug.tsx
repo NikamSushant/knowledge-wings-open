@@ -1,10 +1,34 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, Share2, BookOpen, FileText } from "lucide-react";
 import { BookCover } from "@/components/book-card";
 import { getBookBySlug, books, COPYRIGHT_NOTE, type Book } from "@/lib/books-data";
+import { getPublishedBookBySlug, getBookPdfUrl } from "@/lib/books.functions";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/books/$slug")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
+    const dbBook = await getPublishedBookBySlug({ data: { slug: params.slug } });
+    if (dbBook) {
+      const book: Book = {
+        slug: dbBook.slug,
+        title: dbBook.title,
+        subtitle: dbBook.subtitle ?? undefined,
+        author: dbBook.author,
+        language: dbBook.language,
+        category: dbBook.category,
+        categorySlug: dbBook.categorySlug,
+        pages: dbBook.pages,
+        year: dbBook.year,
+        description: dbBook.description,
+        authorNote: dbBook.authorNote,
+        coverUrl: dbBook.coverUrl,
+        hasPdf: dbBook.hasPdf,
+        allowPdfDownload: dbBook.allowPdfDownload,
+        chapters: dbBook.chapters,
+      };
+      return { book };
+    }
     const book = getBookBySlug(params.slug);
     if (!book) throw notFound();
     return { book };
@@ -43,6 +67,7 @@ export const Route = createFileRoute("/books/$slug")({
 
 function BookDetail() {
   const { book } = Route.useLoaderData() as { book: Book };
+  const getPdf = useServerFn(getBookPdfUrl);
   const related = books.filter((b) => b.slug !== book.slug && b.categorySlug === book.categorySlug).slice(0, 3);
 
   return (
@@ -67,9 +92,22 @@ function BookDetail() {
             <button className="inline-flex w-full items-center justify-center gap-2 rounded-md border-2 border-primary px-4 py-3 font-bold text-primary hover:bg-primary hover:text-primary-foreground">
               <Share2 className="h-4 w-4" /> Share Book
             </button>
-            <button className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground" disabled title="Available when the author enables PDF download">
-              <FileText className="h-4 w-4" /> Download PDF (coming soon)
-            </button>
+            {book.hasPdf && book.allowPdfDownload ? (
+              <button
+                onClick={async () => {
+                  const r = await getPdf({ data: { slug: book.slug } });
+                  if (r.url) window.open(r.url, "_blank");
+                  else toast.info("PDF is not available for download.");
+                }}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-md border-2 border-[color:var(--color-gold)] px-4 py-3 font-bold text-[color:var(--color-navy)] hover:bg-[color:var(--color-gold)]/20"
+              >
+                <FileText className="h-4 w-4" /> Download PDF
+              </button>
+            ) : (
+              <button className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground" disabled>
+                <FileText className="h-4 w-4" /> PDF not available
+              </button>
+            )}
           </div>
         </div>
 
