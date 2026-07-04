@@ -1,7 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Plus, Trash2, Save, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Plus, Trash2, Save, ArrowLeft, Loader2 } from "lucide-react";
 import { categories, languages } from "@/lib/books-data";
+import { supabase } from "@/integrations/supabase/client";
+import { createBook } from "@/lib/books.functions";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/add-book")({
   head: () => ({
@@ -16,10 +20,84 @@ export const Route = createFileRoute("/admin/add-book")({
 type Chapter = { id: string; title: string; content: string };
 
 function AddBook() {
+  const navigate = useNavigate();
+  const create = useServerFn(createBook);
   const [chapters, setChapters] = useState<Chapter[]>([
     { id: crypto.randomUUID(), title: "Chapter 1", content: "" },
   ]);
-  const [saved, setSaved] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<string>("");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (busy) return;
+    const fd = new FormData(e.currentTarget);
+    const slugRaw = String(fd.get("slug") || "").trim();
+    const slug = slugRaw || String(fd.get("title") || "")
+      .toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    if (!slug) return toast.error("Please provide a title or slug.");
+
+    setBusy(true);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) throw new Error("You must be signed in.");
+
+      let coverPath: string | null = null;
+      if (coverFile) {
+        setProgress("Uploading cover…");
+        const ext = coverFile.name.split(".").pop()?.toLowerCase() || "jpg";
+        const path = `${slug}-${Date.now()}.${ext}`;
+        const { error } = await supabase.storage
+          .from("book-covers")
+          .upload(path, coverFile, { upsert: false, contentType: coverFile.type });
+        if (error) throw new Error("Cover upload: " + error.message);
+        coverPath = path;
+      }
+
+      let pdfPath: string | null = null;
+      if (pdfFile) {
+        setProgress("Uploading PDF…");
+        const path = `${slug}-${Date.now()}.pdf`;
+        const { error } = await supabase.storage
+          .from("book-pdfs")
+          .upload(path, pdfFile, { upsert: false, contentType: "application/pdf" });
+        if (error) throw new Error("PDF upload: " + error.message);
+        pdfPath = path;
+      }
+
+      setProgress("Saving book…");
+      await create({
+        data: {
+          slug,
+          title: String(fd.get("title") || ""),
+          subtitle: String(fd.get("subtitle") || "") || null,
+          description: String(fd.get("description") || ""),
+          authorNote: String(fd.get("authorNote") || ""),
+          language: String(fd.get("language") || "English"),
+          categorySlug: String(fd.get("category") || "ambedkar-thought"),
+          category: categories.find((c) => c.slug === String(fd.get("category")))?.name ?? "Ambedkar Thought",
+          tags: String(fd.get("tags") || "").split(",").map((t) => t.trim()).filter(Boolean),
+          year: Number(fd.get("year") || new Date().getFullYear()),
+          pages: Number(fd.get("pages") || 0),
+          coverPath,
+          pdfPath,
+          allowPdfDownload: String(fd.get("allowPdfDownload")) === "yes",
+          chapters: chapters.filter((c) => c.title.trim()),
+          status: String(fd.get("status") || "draft") as "draft" | "published",
+        },
+      });
+      toast.success("Book saved");
+      navigate({ to: "/admin" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setBusy(false);
+      setProgress("");
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -33,47 +111,52 @@ function AddBook() {
         </div>
       </header>
 
-      <form
-        onSubmit={(e) => { e.preventDefault(); setSaved(true); setTimeout(() => setSaved(false), 3000); }}
-        className="space-y-6"
-      >
+      <form onSubmit={onSubmit} className="space-y-6">
         <Card title="Book details">
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Title" required>
-              <input required className="input" placeholder="e.g. The Life of Babasaheb" />
+              <input name="title" required className="input" placeholder="e.g. The Life of Babasaheb" />
             </Field>
             <Field label="Subtitle">
-              <input className="input" placeholder="Optional" />
+              <input name="subtitle" className="input" placeholder="Optional" />
             </Field>
-            <Field label="Author" required>
-              <input required defaultValue="Sushant Nikam" className="input" />
+            <Field label="Slug (URL)">
+              <input name="slug" className="input" placeholder="auto from title" />
             </Field>
             <Field label="Copyright year" required>
-              <input required type="number" defaultValue={2026} className="input" />
+              <input name="year" required type="number" defaultValue={new Date().getFullYear()} className="input" />
             </Field>
             <Field label="Language" required>
-              <select required className="input">
+              <select name="language" required className="input">
                 {languages.map((l) => <option key={l}>{l}</option>)}
               </select>
             </Field>
             <Field label="Category" required>
-              <select required className="input">
+              <select name="category" required className="input">
                 {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
               </select>
             </Field>
             <Field label="Tags (comma-separated)">
-              <input className="input" placeholder="ambedkar, constitution, youth" />
+              <input name="tags" className="input" placeholder="ambedkar, constitution, youth" />
             </Field>
             <Field label="Publish status" required>
-              <select required className="input" defaultValue="draft">
+              <select name="status" required className="input" defaultValue="draft">
                 <option value="draft">Draft</option>
                 <option value="published">Published</option>
               </select>
             </Field>
+            <Field label="Pages">
+              <input name="pages" type="number" min={0} defaultValue={0} className="input" />
+            </Field>
           </div>
           <div className="mt-4">
             <Field label="Short description" required>
-              <textarea required rows={4} className="input" placeholder="1–2 sentences that describe the book to a reader." />
+              <textarea name="description" required rows={4} className="input" placeholder="1–2 sentences that describe the book to a reader." />
+            </Field>
+          </div>
+          <div className="mt-4">
+            <Field label="A note from the author">
+              <textarea name="authorNote" rows={3} className="input" placeholder="Optional message shown on the book page." />
             </Field>
           </div>
         </Card>
@@ -81,13 +164,35 @@ function AddBook() {
         <Card title="Cover & files">
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Cover image">
-              <input type="file" accept="image/*" className="input file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-primary-foreground" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const f = e.target.files?.[0] ?? null;
+                  setCoverFile(f);
+                  if (coverPreview) URL.revokeObjectURL(coverPreview);
+                  setCoverPreview(f ? URL.createObjectURL(f) : null);
+                }}
+                className="input file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-primary-foreground"
+              />
+              {coverPreview && (
+                <img src={coverPreview} alt="preview" className="mt-2 h-32 w-24 rounded object-cover shadow" />
+              )}
             </Field>
             <Field label="PDF file (optional)">
-              <input type="file" accept="application/pdf" className="input file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-primary-foreground" />
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
+                className="input file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-primary-foreground"
+              />
+              {pdfFile && <div className="mt-1 text-xs text-muted-foreground">{pdfFile.name} · {(pdfFile.size / 1024 / 1024).toFixed(2)} MB</div>}
             </Field>
             <Field label="Allow PDF download">
-              <select className="input"><option>No</option><option>Yes</option></select>
+              <select name="allowPdfDownload" className="input" defaultValue="no">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
             </Field>
           </div>
         </Card>
@@ -137,16 +242,17 @@ function AddBook() {
         </Card>
 
         <div className="flex flex-wrap items-center justify-end gap-3">
-          {saved && (
+          {progress && (
             <div className="inline-flex items-center gap-2 rounded-md bg-primary/10 px-3 py-2 text-sm font-semibold text-primary">
-              <CheckCircle2 className="h-4 w-4" /> Draft saved locally (connect Lovable Cloud to persist)
+              <Loader2 className="h-4 w-4 animate-spin" /> {progress}
             </div>
           )}
-          <button type="button" className="rounded-md border-2 border-primary px-5 py-2.5 text-sm font-bold text-primary hover:bg-primary hover:text-primary-foreground">
-            Save as draft
-          </button>
-          <button type="submit" className="btn-cta inline-flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-bold">
-            <Save className="h-4 w-4" /> Save & Publish
+          <button
+            type="submit"
+            disabled={busy}
+            className="btn-cta inline-flex items-center gap-2 rounded-md px-5 py-2.5 text-sm font-bold disabled:opacity-60"
+          >
+            <Save className="h-4 w-4" /> Save Book
           </button>
         </div>
       </form>
