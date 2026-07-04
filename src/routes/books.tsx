@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { BookCard } from "@/components/book-card";
-import { books, categories, languages } from "@/lib/books-data";
+import { categories, languages } from "@/lib/books-data";
+import { usePublishedBooks } from "@/hooks/usePublishedBooks";
 
 export const Route = createFileRoute("/books")({
   head: () => ({
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/books")({
 });
 
 function BooksPage() {
+  const { books, loading } = usePublishedBooks();
   const [q, setQ] = useState("");
   const [lang, setLang] = useState<string>("All");
   const [cat, setCat] = useState<string>("All");
@@ -29,7 +31,7 @@ function BooksPage() {
         if (q && !`${b.title} ${b.description} ${b.author}`.toLowerCase().includes(q.toLowerCase())) return false;
         return true;
       }),
-    [q, lang, cat],
+    [books, q, lang, cat],
   );
 
   return (
@@ -76,7 +78,9 @@ function BooksPage() {
         </select>
       </div>
 
-      {filtered.length === 0 ? (
+      {loading ? (
+        <p className="mt-12 text-center text-muted-foreground">Loading books…</p>
+      ) : filtered.length === 0 ? (
         <p className="mt-12 text-center text-muted-foreground">No books match your filters.</p>
       ) : (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
