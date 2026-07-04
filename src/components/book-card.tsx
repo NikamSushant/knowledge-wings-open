@@ -4,12 +4,15 @@ import type { Book } from "@/lib/books-data";
 
 export function BookCover({ book, className = "" }: { book: Book; className?: string }) {
   const isDevanagari = book.language !== "English";
+  const bg = book.coverUrl
+    ? `center/cover no-repeat url("${book.coverUrl}")`
+    : book.coverGradient || "linear-gradient(140deg, #0B3D91 0%, #061B3A 100%)";
   return (
     <div
       className={`relative aspect-[3/4] w-full overflow-hidden rounded-md shadow-[var(--shadow-card)] ${className}`}
-      style={{ background: book.coverGradient }}
+      style={{ background: bg }}
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-black/25" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/60" />
       <div className="absolute left-0 top-6 h-[3px] w-16 bg-[color:var(--color-gold)]" />
       <div className="absolute inset-0 flex flex-col justify-between p-4 text-white">
         <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/80">
