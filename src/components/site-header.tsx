@@ -36,7 +36,7 @@ export function SiteHeader() {
               <li key={n.to}>
                 <Link
                   to={n.to}
-                  activeProps={{ className: "text-primary bg-secondary" }}
+                  activeProps={{ className: "text-primary bg-secondary/80 ring-1 ring-primary/20" }}
                   inactiveProps={{ className: "text-foreground/75 hover:text-primary hover:bg-secondary/60" }}
                   activeOptions={{ exact: n.to === "/" }}
                   className="whitespace-nowrap rounded-md px-2.5 py-2 text-sm font-semibold transition-colors"
@@ -79,10 +79,10 @@ export function SiteHeader() {
                 <Link
                   to={n.to}
                   onClick={() => setOpen(false)}
-                  activeProps={{ className: "text-primary" }}
-                  inactiveProps={{ className: "text-foreground/80" }}
+                  activeProps={{ className: "text-primary bg-secondary/80 ring-1 ring-primary/20" }}
+                  inactiveProps={{ className: "text-foreground/80 hover:text-primary hover:bg-secondary/60" }}
                   activeOptions={{ exact: n.to === "/" }}
-                  className="block rounded-md px-2 py-3 text-base font-semibold"
+                  className="block rounded-md px-3 py-3 text-base font-semibold transition-colors"
                 >
                   {n.label}
                 </Link>
