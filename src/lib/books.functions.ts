@@ -196,6 +196,107 @@ export const createBook = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const updateBook = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    bookInput.extend({ id: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase
+      .from("books")
+      .update({
+        slug: data.slug,
+        title: data.title,
+        subtitle: data.subtitle ?? null,
+        description: data.description,
+        author_note: data.authorNote,
+        language: data.language,
+        category: data.category,
+        category_slug: data.categorySlug,
+        tags: data.tags,
+        year: data.year,
+        pages: data.pages,
+        cover_path: data.coverPath ?? null,
+        pdf_path: data.pdfPath ?? null,
+        allow_pdf_download: data.allowPdfDownload,
+        chapters: data.chapters,
+        status: data.status,
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const setBookStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({ id: z.string().uuid(), status: z.enum(["draft", "published"]) })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase
+      .from("books")
+      .update({ status: data.status })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const getBookById = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { data: row, error } = await context.supabase
+      .from("books")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row) return null;
+    const sb = serverPublic();
+    return shape(row, await signCover(sb, row.cover_path));
+  });
+
+/**
+ * Fetch a PDF from a public URL on the server (bypasses browser CORS) and
+ * store it in the book-pdfs bucket. Returns the storage path to save on the
+ * book row.
+ */
+export const uploadPdfFromUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        url: z.string().url().max(2000),
+        slug: z.string().min(1).max(120).regex(/^[a-z0-9-]+$/i),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const res = await fetch(data.url, { redirect: "follow" });
+    if (!res.ok) throw new Error(`Failed to fetch PDF (HTTP ${res.status})`);
+    const ct = res.headers.get("content-type") ?? "";
+    const buf = new Uint8Array(await res.arrayBuffer());
+    if (buf.byteLength < 100) throw new Error("Downloaded file is empty");
+    // Accept common misconfigured servers, but sniff the %PDF- header too
+    const looksPdf =
+      ct.toLowerCase().includes("pdf") ||
+      (buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46);
+    if (!looksPdf) throw new Error("URL did not return a PDF file");
+    const path = `${data.slug}-${Date.now()}.pdf`;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.storage
+      .from(PDFS_BUCKET)
+      .upload(path, buf, { contentType: "application/pdf", upsert: false });
+    if (error) throw new Error("PDF upload: " + error.message);
+    return { path, size: buf.byteLength };
+  });
+
 export const deleteBook = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
