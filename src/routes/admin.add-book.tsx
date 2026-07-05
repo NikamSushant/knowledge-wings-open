@@ -30,6 +30,8 @@ function AddBook() {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [pdfSource, setPdfSource] = useState<"upload" | "url">("upload");
+  const [pdfUrl, setPdfUrl] = useState("");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -58,12 +60,28 @@ function AddBook() {
       }
 
       let pdfPath: string | null = null;
-      if (pdfFile) {
+      let pdfBlob: Blob | null = null;
+      if (pdfSource === "upload" && pdfFile) {
+        pdfBlob = pdfFile;
+      } else if (pdfSource === "url" && pdfUrl.trim()) {
+        setProgress("Fetching PDF from URL…");
+        try {
+          const res = await fetch(pdfUrl.trim());
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          pdfBlob = await res.blob();
+        } catch (err) {
+          throw new Error(
+            "Could not fetch that PDF URL (the server may block cross-origin downloads). " +
+              (err instanceof Error ? err.message : ""),
+          );
+        }
+      }
+      if (pdfBlob) {
         setProgress("Uploading PDF…");
         const path = `${slug}-${Date.now()}.pdf`;
         const { error } = await supabase.storage
           .from("book-pdfs")
-          .upload(path, pdfFile, { upsert: false, contentType: "application/pdf" });
+          .upload(path, pdfBlob, { upsert: false, contentType: "application/pdf" });
         if (error) throw new Error("PDF upload: " + error.message);
         pdfPath = path;
       }
@@ -179,14 +197,47 @@ function AddBook() {
                 <img src={coverPreview} alt="preview" className="mt-2 h-32 w-24 rounded object-cover shadow" />
               )}
             </Field>
-            <Field label="PDF file (optional)">
-              <input
-                type="file"
-                accept="application/pdf"
-                onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
-                className="input file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-primary-foreground"
-              />
-              {pdfFile && <div className="mt-1 text-xs text-muted-foreground">{pdfFile.name} · {(pdfFile.size / 1024 / 1024).toFixed(2)} MB</div>}
+            <Field label="PDF (optional)">
+              <div className="mb-2 inline-flex rounded-md border border-border p-0.5 text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => setPdfSource("upload")}
+                  className={`rounded px-3 py-1 transition-colors ${pdfSource === "upload" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  Upload file
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPdfSource("url")}
+                  className={`rounded px-3 py-1 transition-colors ${pdfSource === "url" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  From URL
+                </button>
+              </div>
+              {pdfSource === "upload" ? (
+                <>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
+                    className="input file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-primary-foreground"
+                  />
+                  {pdfFile && <div className="mt-1 text-xs text-muted-foreground">{pdfFile.name} · {(pdfFile.size / 1024 / 1024).toFixed(2)} MB</div>}
+                </>
+              ) : (
+                <>
+                  <input
+                    type="url"
+                    value={pdfUrl}
+                    onChange={(e) => setPdfUrl(e.target.value)}
+                    placeholder="https://example.com/book.pdf"
+                    className="input"
+                  />
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    The PDF will be fetched and stored in the portal's library. The source must allow cross-origin downloads.
+                  </div>
+                </>
+              )}
             </Field>
             <Field label="Allow PDF download">
               <select name="allowPdfDownload" className="input" defaultValue="no">
