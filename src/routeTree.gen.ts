@@ -24,7 +24,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReadSlugRouteImport } from './routes/read.$slug'
 import { Route as CategoriesSlugRouteImport } from './routes/categories.$slug'
 import { Route as BooksSlugRouteImport } from './routes/books.$slug'
+import { Route as AdminBooksRouteImport } from './routes/admin.books'
 import { Route as AdminAddBookRouteImport } from './routes/admin.add-book'
+import { Route as AdminBooksAddRouteImport } from './routes/admin.books.add'
+import { Route as AdminBooksEditIdRouteImport } from './routes/admin.books.edit.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -101,10 +104,25 @@ const BooksSlugRoute = BooksSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => BooksRoute,
 } as any)
+const AdminBooksRoute = AdminBooksRouteImport.update({
+  id: '/books',
+  path: '/books',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAddBookRoute = AdminAddBookRouteImport.update({
   id: '/add-book',
   path: '/add-book',
   getParentRoute: () => AdminRoute,
+} as any)
+const AdminBooksAddRoute = AdminBooksAddRouteImport.update({
+  id: '/add',
+  path: '/add',
+  getParentRoute: () => AdminBooksRoute,
+} as any)
+const AdminBooksEditIdRoute = AdminBooksEditIdRouteImport.update({
+  id: '/edit/$id',
+  path: '/edit/$id',
+  getParentRoute: () => AdminBooksRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -121,9 +139,12 @@ export interface FileRoutesByFullPath {
   '/policies': typeof PoliciesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/add-book': typeof AdminAddBookRoute
+  '/admin/books': typeof AdminBooksRouteWithChildren
   '/books/$slug': typeof BooksSlugRoute
   '/categories/$slug': typeof CategoriesSlugRoute
   '/read/$slug': typeof ReadSlugRoute
+  '/admin/books/add': typeof AdminBooksAddRoute
+  '/admin/books/edit/$id': typeof AdminBooksEditIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -139,9 +160,12 @@ export interface FileRoutesByTo {
   '/policies': typeof PoliciesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/add-book': typeof AdminAddBookRoute
+  '/admin/books': typeof AdminBooksRouteWithChildren
   '/books/$slug': typeof BooksSlugRoute
   '/categories/$slug': typeof CategoriesSlugRoute
   '/read/$slug': typeof ReadSlugRoute
+  '/admin/books/add': typeof AdminBooksAddRoute
+  '/admin/books/edit/$id': typeof AdminBooksEditIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -158,9 +182,12 @@ export interface FileRoutesById {
   '/policies': typeof PoliciesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/add-book': typeof AdminAddBookRoute
+  '/admin/books': typeof AdminBooksRouteWithChildren
   '/books/$slug': typeof BooksSlugRoute
   '/categories/$slug': typeof CategoriesSlugRoute
   '/read/$slug': typeof ReadSlugRoute
+  '/admin/books/add': typeof AdminBooksAddRoute
+  '/admin/books/edit/$id': typeof AdminBooksEditIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -178,9 +205,12 @@ export interface FileRouteTypes {
     | '/policies'
     | '/sitemap.xml'
     | '/admin/add-book'
+    | '/admin/books'
     | '/books/$slug'
     | '/categories/$slug'
     | '/read/$slug'
+    | '/admin/books/add'
+    | '/admin/books/edit/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -196,9 +226,12 @@ export interface FileRouteTypes {
     | '/policies'
     | '/sitemap.xml'
     | '/admin/add-book'
+    | '/admin/books'
     | '/books/$slug'
     | '/categories/$slug'
     | '/read/$slug'
+    | '/admin/books/add'
+    | '/admin/books/edit/$id'
   id:
     | '__root__'
     | '/'
@@ -214,9 +247,12 @@ export interface FileRouteTypes {
     | '/policies'
     | '/sitemap.xml'
     | '/admin/add-book'
+    | '/admin/books'
     | '/books/$slug'
     | '/categories/$slug'
     | '/read/$slug'
+    | '/admin/books/add'
+    | '/admin/books/edit/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -342,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BooksSlugRouteImport
       parentRoute: typeof BooksRoute
     }
+    '/admin/books': {
+      id: '/admin/books'
+      path: '/books'
+      fullPath: '/admin/books'
+      preLoaderRoute: typeof AdminBooksRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/add-book': {
       id: '/admin/add-book'
       path: '/add-book'
@@ -349,15 +392,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAddBookRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/books/add': {
+      id: '/admin/books/add'
+      path: '/add'
+      fullPath: '/admin/books/add'
+      preLoaderRoute: typeof AdminBooksAddRouteImport
+      parentRoute: typeof AdminBooksRoute
+    }
+    '/admin/books/edit/$id': {
+      id: '/admin/books/edit/$id'
+      path: '/edit/$id'
+      fullPath: '/admin/books/edit/$id'
+      preLoaderRoute: typeof AdminBooksEditIdRouteImport
+      parentRoute: typeof AdminBooksRoute
+    }
   }
 }
 
+interface AdminBooksRouteChildren {
+  AdminBooksAddRoute: typeof AdminBooksAddRoute
+  AdminBooksEditIdRoute: typeof AdminBooksEditIdRoute
+}
+
+const AdminBooksRouteChildren: AdminBooksRouteChildren = {
+  AdminBooksAddRoute: AdminBooksAddRoute,
+  AdminBooksEditIdRoute: AdminBooksEditIdRoute,
+}
+
+const AdminBooksRouteWithChildren = AdminBooksRoute._addFileChildren(
+  AdminBooksRouteChildren,
+)
+
 interface AdminRouteChildren {
   AdminAddBookRoute: typeof AdminAddBookRoute
+  AdminBooksRoute: typeof AdminBooksRouteWithChildren
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAddBookRoute: AdminAddBookRoute,
+  AdminBooksRoute: AdminBooksRouteWithChildren,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
