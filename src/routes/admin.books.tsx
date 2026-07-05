@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useMatches } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -23,6 +23,11 @@ export const Route = createFileRoute("/admin/books")({
 });
 
 function ManageBooksPage() {
+  const matches = useMatches();
+  const isChildRoute = matches.some(
+    (m) => m.routeId === "/admin/books/add" || m.routeId === "/admin/books/edit/$id"
+  );
+
   const list = useServerFn(listAllBooks);
   const del = useServerFn(deleteBook);
   const status = useServerFn(setBookStatus);
@@ -67,6 +72,10 @@ function ManageBooksPage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  if (isChildRoute) {
+    return <Outlet />;
+  }
 
   return (
     <div className="space-y-6">
