@@ -43,8 +43,8 @@ export function usePublishedBooks() {
       const { data, error } = await supabase
         .from("books")
         .select("*")
-        .eq("is_published", true)
-        .order("published_at", { ascending: false });
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
 
       if (!active) return;
       if (!error && data) setBooks(data.map(mapDbBookToBook));
