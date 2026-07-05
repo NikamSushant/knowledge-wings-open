@@ -36,7 +36,7 @@ export function SiteHeader() {
               <li key={n.to}>
                 <Link
                   to={n.to}
-                  activeProps={{ className: "text-primary bg-secondary" }}
+                  activeProps={{ className: "text-primary bg-secondary/80 ring-1 ring-primary/20" }}
                   inactiveProps={{ className: "text-foreground/75 hover:text-primary hover:bg-secondary/60" }}
                   activeOptions={{ exact: n.to === "/" }}
                   className="whitespace-nowrap rounded-md px-2.5 py-2 text-sm font-semibold transition-colors"
