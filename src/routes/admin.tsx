@@ -144,7 +144,7 @@ function Dashboard() {
           <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">Author Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">Add new books, upload covers and PDFs, manage publish status.</p>
         </div>
-        <Link to="/admin/add-book" className="btn-cta inline-flex items-center gap-2 rounded-md px-4 py-2.5 text-sm font-bold">
+        <Link to="/admin/books/add" className="btn-cta inline-flex items-center gap-2 rounded-md px-4 py-2.5 text-sm font-bold">
           <Plus className="h-4 w-4" /> Add new book
         </Link>
       </header>
