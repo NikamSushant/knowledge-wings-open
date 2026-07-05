@@ -1,11 +1,10 @@
 import { createFileRoute, Link, Outlet, useMatchRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { BookOpen, LayoutDashboard, Loader2, Plus, Trash2, FileDown } from "lucide-react";
+import { BookOpen, LayoutDashboard, Loader2, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { checkAdmin, listAllBooks, deleteBook, getBookPdfUrl } from "@/lib/books.functions";
-import { toast } from "sonner";
+import { checkAdmin, listAllBooks } from "@/lib/books.functions";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -81,8 +80,8 @@ function AdminLayout() {
             <div className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Admin</div>
             <nav className="space-y-1">
               <NavItem to="/admin" icon={LayoutDashboard} label="Dashboard" exact />
-              <NavItem to="/admin/add-book" icon={Plus} label="Add Book" />
-              <NavItem to="/admin" icon={BookOpen} label="Manage Books" exact />
+              <NavItem to="/admin/books/add" icon={Plus} label="Add Book" />
+              <NavItem to="/admin/books" icon={BookOpen} label="Manage Books" />
             </nav>
             <button
               onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
@@ -124,22 +123,18 @@ function NavItem({
 
 function Dashboard() {
   const list = useServerFn(listAllBooks);
-  const del = useServerFn(deleteBook);
-  const getPdf = useServerFn(getBookPdfUrl);
-  const qc = useQueryClient();
 
   const { data: books = [], isLoading } = useQuery({
     queryKey: ["admin-books"],
     queryFn: async () => (await list()) as Awaited<ReturnType<typeof listAllBooks>>,
   });
-  const deleteMut = useMutation({
-    mutationFn: (id: string) => del({ data: { id } }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin-books"] }); toast.success("Book deleted"); },
-    onError: (e: Error) => toast.error(e.message),
-  });
 
   const published = books.filter((b) => b.status === "published").length;
   const drafts = books.length - published;
+  const categoriesCount = new Set(books.map((b) => b.categorySlug)).size;
+  const recent = [...books]
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+    .slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -149,16 +144,17 @@ function Dashboard() {
           <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">Author Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">Add new books, upload covers and PDFs, manage publish status.</p>
         </div>
-        <Link to="/admin/add-book" className="btn-cta inline-flex items-center gap-2 rounded-md px-4 py-2.5 text-sm font-bold">
+        <Link to="/admin/books/add" className="btn-cta inline-flex items-center gap-2 rounded-md px-4 py-2.5 text-sm font-bold">
           <Plus className="h-4 w-4" /> Add new book
         </Link>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "Total", value: books.length },
+          { label: "Total Books", value: books.length },
           { label: "Published", value: published },
           { label: "Drafts", value: drafts },
+          { label: "Categories", value: categoriesCount },
         ].map((s) => (
           <div key={s.label} className="rounded-xl bg-card p-5 shadow-[var(--shadow-card)]">
             <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{s.label}</div>
@@ -168,16 +164,21 @@ function Dashboard() {
       </div>
 
       <section className="rounded-xl bg-card p-5 shadow-[var(--shadow-card)]">
-        <h2 className="text-lg font-bold">Your books</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-bold">Recently added</h2>
+          <Link to="/admin/books" className="text-xs font-bold uppercase tracking-widest text-primary hover:underline">
+            Manage all →
+          </Link>
+        </div>
         {isLoading ? (
           <div className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading…
           </div>
-        ) : books.length === 0 ? (
+        ) : recent.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">No books yet. Click <em>Add new book</em> to publish your first one.</p>
         ) : (
           <ul className="mt-4 divide-y divide-border">
-            {books.map((b) => (
+            {recent.map((b) => (
               <li key={b.id} className="flex items-center gap-4 py-3">
                 <div className="h-16 w-12 shrink-0 overflow-hidden rounded bg-secondary">
                   {b.coverUrl ? (
@@ -193,38 +194,13 @@ function Dashboard() {
                     {b.hasPdf && " · PDF"}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {b.status === "published" && (
-                    <Link
-                      to="/books/$slug"
-                      params={{ slug: b.slug }}
-                      className="rounded-md border border-input px-3 py-1.5 text-xs font-semibold hover:bg-secondary"
-                    >
-                      View
-                    </Link>
-                  )}
-                  {b.hasPdf && (
-                    <button
-                      onClick={async () => {
-                        const r = await getPdf({ data: { slug: b.slug } });
-                        if (r.url) window.open(r.url, "_blank");
-                        else toast.info("PDF download is disabled for this book.");
-                      }}
-                      className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-xs font-semibold hover:bg-secondary"
-                    >
-                      <FileDown className="h-3.5 w-3.5" /> PDF
-                    </button>
-                  )}
-                  <button
-                    onClick={() => {
-                      if (confirm(`Delete "${b.title}"? This cannot be undone.`)) deleteMut.mutate(b.id);
-                    }}
-                    className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                    aria-label="Delete book"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
+                <Link
+                  to="/admin/books/edit/$id"
+                  params={{ id: b.id }}
+                  className="rounded-md border border-input px-3 py-1.5 text-xs font-semibold hover:bg-secondary"
+                >
+                  Edit
+                </Link>
               </li>
             ))}
           </ul>

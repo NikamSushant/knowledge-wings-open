@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Plus, Trash2, Save, ArrowLeft, Loader2 } from "lucide-react";
 import { categories, languages } from "@/lib/books-data";
 import { supabase } from "@/integrations/supabase/client";
-import { createBook } from "@/lib/books.functions";
+import { createBook, uploadPdfFromUrl } from "@/lib/books.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/add-book")({
@@ -22,6 +22,7 @@ type Chapter = { id: string; title: string; content: string };
 function AddBook() {
   const navigate = useNavigate();
   const create = useServerFn(createBook);
+  const fetchPdf = useServerFn(uploadPdfFromUrl);
   const [chapters, setChapters] = useState<Chapter[]>([
     { id: crypto.randomUUID(), title: "Chapter 1", content: "" },
   ]);
@@ -64,19 +65,11 @@ function AddBook() {
       if (pdfSource === "upload" && pdfFile) {
         pdfBlob = pdfFile;
       } else if (pdfSource === "url" && pdfUrl.trim()) {
-        setProgress("Fetching PDF from URL…");
-        try {
-          const res = await fetch(pdfUrl.trim());
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          pdfBlob = await res.blob();
-        } catch (err) {
-          throw new Error(
-            "Could not fetch that PDF URL (the server may block cross-origin downloads). " +
-              (err instanceof Error ? err.message : ""),
-          );
-        }
+        setProgress("Fetching PDF from URL on the server…");
+        const r = await fetchPdf({ data: { url: pdfUrl.trim(), slug } });
+        pdfPath = r.path;
       }
-      if (pdfBlob) {
+      if (pdfBlob && !pdfPath) {
         setProgress("Uploading PDF…");
         const path = `${slug}-${Date.now()}.pdf`;
         const { error } = await supabase.storage
