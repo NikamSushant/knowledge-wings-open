@@ -20,6 +20,27 @@ export const Route = createFileRoute("/read/$slug")({
   loader: async ({ params }) => {
     const dbBook = await getPublishedBookBySlug({ data: { slug: params.slug } });
     if (dbBook) {
+      const hasRealChapterContent = dbBook.chapters.some(
+        (c) => c.content && c.content.trim().length > 0,
+      );
+
+      let chapters: Book["chapters"];
+      if (hasRealChapterContent) {
+        chapters = dbBook.chapters;
+      } else if (dbBook.hasPdf) {
+        chapters = [
+          {
+            id: "pdf-notice",
+            title: "This book is available as a PDF",
+            content: `<p>${dbBook.description}</p><p><a href="/books/${dbBook.slug}" style="color:#0B3D91;font-weight:bold;">View book page to download or read the PDF →</a></p>`,
+          },
+        ];
+      } else {
+        chapters = [
+          { id: "intro", title: "About this book", content: `<p>${dbBook.description}</p>` },
+        ];
+      }
+
       const book: Book = {
         slug: dbBook.slug,
         title: dbBook.title,
@@ -33,7 +54,7 @@ export const Route = createFileRoute("/read/$slug")({
         description: dbBook.description,
         authorNote: dbBook.authorNote,
         coverUrl: dbBook.coverUrl,
-        chapters: dbBook.chapters.length ? dbBook.chapters : [{ id: "intro", title: "About this book", content: `<p>${dbBook.description}</p>` }],
+        chapters,
       };
       return { book };
     }
